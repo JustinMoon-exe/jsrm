@@ -1,20 +1,15 @@
 package srm;
-
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.BasicStroke;
-import java.awt.GradientPaint;
-
 import javax.swing.*;
 import org.jfree.chart.*;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.block.BlockBorder;
 import org.jfree.chart.plot.*;
 import org.jfree.chart.renderer.xy.XYAreaRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.time.*;
 import org.jfree.data.xy.*;
-import org.jfree.ui.RectangleEdge;
 import org.hyperic.sigar.*;
 import javax.swing.border.*;
 import java.io.FileWriter;
@@ -52,8 +47,8 @@ public class SystemMonitor extends JFrame {
         // Create time series datasets for each metric
         cpuSeries = new TimeSeries("CPU Utilization");
         memorySeries = new TimeSeries("Memory Utilization");
-        diskReadSeries = new TimeSeries("Disk Read Speed");
-        diskWriteSeries = new TimeSeries("Disk Write Speed");
+        diskReadSeries = new TimeSeries("Disk Read Speed"); // Initialize diskReadSeries
+        diskWriteSeries = new TimeSeries("Disk Write Speed"); // Initialize diskWriteSeries
         networkInSeries = new TimeSeries("Network Inbound Throughput");
         networkOutSeries = new TimeSeries("Network Outbound Throughput");
 
@@ -99,17 +94,8 @@ public class SystemMonitor extends JFrame {
         // Inside the SystemMonitor constructor
         Color paddingColor = Color.decode("#282A36"); // Change this to the desired color
         int paddingSize = 30; // Adjust padding size as needed
-
-        // Create the padding border
-        Border paddingBorder = BorderFactory.createEmptyBorder(paddingSize, paddingSize, paddingSize, paddingSize);
-
-        // Create the line border with the desired color
-        Border lineBorder = BorderFactory.createLineBorder(paddingColor);
-        
+  
         Border pad = BorderFactory.createMatteBorder(paddingSize, paddingSize, paddingSize, paddingSize, paddingColor);
-
-        // Combine the padding border and the line border
-        Border compoundBorder = BorderFactory.createCompoundBorder(lineBorder, paddingBorder);
 
         // Set the compound border to the main panel
         mainPanel.setBorder(pad);
@@ -121,7 +107,7 @@ public class SystemMonitor extends JFrame {
         startUpdatingCharts();
         try {
             // Create FileWriter object for writing to CSV file
-            csvWriter = new FileWriter(CSV_FILE_NAME);
+            csvWriter = new FileWriter(CSV_FILE_NAME); 
 
             // Write headers to CSV file
             csvWriter.append(CSV_HEADERS);
@@ -131,8 +117,8 @@ public class SystemMonitor extends JFrame {
 
         // Start updating charts and logging data
         startUpdatingCharts();
-        startLoggingData();
     }
+
 
     private JFreeChart createChart(XYDataset dataset, String title, String y, double minY, double maxY, Color lineColor) {
         JFreeChart chart = ChartFactory.createTimeSeriesChart(
@@ -154,8 +140,18 @@ public class SystemMonitor extends JFrame {
         domainAxis.setTickLabelsVisible(false); // Show tick labels
         domainAxis.setTickMarksVisible(false); // Show tick marks
         
+     // Set font for axis labels
+        rangeAxis.setTickLabelFont(new Font("Georgia", Font.PLAIN, 12)); // Example: Arial font, plain style, size 12
+        domainAxis.setTickLabelFont(new Font("Georgia", Font.PLAIN, 12));
 
+        // Set font for axis titles
+        rangeAxis.setLabelFont(new Font("Georgia", Font.BOLD, 14)); // Example: Arial font, bold style, size 14
+        domainAxis.setLabelFont(new Font("Georgia", Font.BOLD, 14));
 
+        // Set font for chart title
+        chart.getTitle().setFont(new Font("Georgia", Font.BOLD, 16)); // Example: Arial font, bold style, size 16
+
+      
         XYAreaRenderer renderer = new XYAreaRenderer();
         plot.setRenderer(renderer);
 
@@ -172,22 +168,14 @@ public class SystemMonitor extends JFrame {
         // Optional: Set outline paint to match line color (for a more cohesive look)
         renderer.setSeriesOutlinePaint(0, lineColor); 
         
-//      // Adjust domain to show only the last 60 seconds if data is available
-        long now = System.currentTimeMillis();
-        long end = now + 6000;
-       
- 
-
         plot.setDomainPannable(true);
         plot.setRangePannable(true);
-
 
         // Set Dracula color scheme for the chart background, grid lines, axis labels, and legend
         chart.setBackgroundPaint(Color.decode("#282A36")); // page bg
         plot.setBackgroundPaint(Color.decode("#44475A")); // chart bg
         
-        
-        plot.setRangeGridlinePaint(new Color(108, 113, 196));
+                plot.setRangeGridlinePaint(new Color(108, 113, 196));
         plot.setDomainGridlinePaint(Color.decode("#44475A")); // vertlines
         rangeAxis.setLabelPaint( Color.decode("#F8F8F2"));
         domainAxis.setLabelPaint(Color.decode("#F8F8F2"));
@@ -206,10 +194,7 @@ public class SystemMonitor extends JFrame {
     private void startUpdatingCharts() {
         Timer timer = new Timer(125, e -> { // Decreased interval to 250ms
             long now = System.currentTimeMillis();
-            long oneMinuteAgo = now - 60000;
-            
-            
-           
+
             try {
                 // Update CPU chart
                 updateCPUChart(now);
@@ -300,10 +285,6 @@ public class SystemMonitor extends JFrame {
         // Calculate the percentage of time spent on disk reads and writes
         double readTimePercent = readTime / elapsedTime * 10000;
         double writeTimePercent = writeTime / elapsedTime * 10000;
-
-        
-        // Update the upper bounds of the y-axis
-        double maxDiskUsage = Math.max(readTimePercent, 0);
         
         // Retrieve the plot from the inchart
         XYPlot plot = (XYPlot) diskInChart.getPlot();
@@ -379,47 +360,6 @@ public class SystemMonitor extends JFrame {
             new SystemMonitor().setVisible(true);
         });
     }
+     
     
-    private void startLoggingData() {
-        Timer timer = new Timer(500, e -> {
-            try {
-                // Log data to CSV file
-                logData();
-            } catch (IOException | SigarException ex) {
-                ex.printStackTrace();
-            }
-        });
-        timer.start();
-    }
-
-    private void logData() throws IOException, SigarException {
-        long timestamp = System.currentTimeMillis();
-        double cpuUsage = sigar.getCpuPerc().getCombined() * 100;
-        double memoryUsage = sigar.getMem().getUsedPercent();
-        // Add more metrics as needed
-
-        // Append data to CSV file
-        csvWriter.append(String.format("%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\n",
-                timestamp, cpuUsage, memoryUsage,
-                diskReadSeries.getValue(new Millisecond()).doubleValue(),
-                diskWriteSeries.getValue(new Millisecond()).doubleValue(),
-                networkInSeries.getValue(new Millisecond()).doubleValue(),
-                networkOutSeries.getValue(new Millisecond()).doubleValue()));
-
-        // Flush the buffer to ensure data is written immediately
-        csvWriter.flush();
-    }
-
-    @Override
-    public void dispose() {
-        super.dispose();
-        try {
-            // Close the FileWriter when the JFrame is closed
-            if (csvWriter != null) {
-                csvWriter.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }
