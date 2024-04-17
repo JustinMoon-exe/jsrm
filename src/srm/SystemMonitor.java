@@ -14,6 +14,10 @@ import org.hyperic.sigar.*;
 import javax.swing.border.*;
 import java.io.FileWriter;
 import java.io.IOException;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 
 
@@ -35,12 +39,20 @@ public class SystemMonitor extends JFrame {
     private static final String CSV_FILE_NAME = "system_monitor_data.csv";
     private static final String CSV_HEADERS = "Timestamp,CPU Utilization,Memory Utilization,Disk Read Speed,Disk Write Speed,Network Inbound Throughput,Network Outbound Throughput\n";
     
+    private JButton closeButton;
+    private JButton minimizeButton;
+    
     private FileWriter csvWriter;
     public SystemMonitor() {
         setTitle("System Monitor");
-        setSize(1200, 900); // Adjusted size to accommodate two side-by-side charts
+        setSize(1920, 1080); // Adjusted size to accommodate two side-by-side charts
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setUndecorated(true); // Removes window decorations (e.g., title bar, borders)
+        
+        setOpacity(0.7f);
+       
 
+        
         // Create Sigar instance
         sigar = new Sigar();
 
@@ -141,22 +153,22 @@ public class SystemMonitor extends JFrame {
         domainAxis.setTickMarksVisible(false); // Show tick marks
         
      // Set font for axis labels
-        rangeAxis.setTickLabelFont(new Font("Georgia", Font.PLAIN, 12)); // Example: Arial font, plain style, size 12
-        domainAxis.setTickLabelFont(new Font("Georgia", Font.PLAIN, 12));
+        rangeAxis.setTickLabelFont(new Font("Trebuchet MS", Font.PLAIN, 12)); // Example: Arial font, plain style, size 12
+        domainAxis.setTickLabelFont(new Font("Trebuchet MS", Font.PLAIN, 12));
 
         // Set font for axis titles
-        rangeAxis.setLabelFont(new Font("Georgia", Font.BOLD, 14)); // Example: Arial font, bold style, size 14
-        domainAxis.setLabelFont(new Font("Georgia", Font.BOLD, 14));
+        rangeAxis.setLabelFont(new Font("Trebuchet MS", Font.PLAIN, 14)); // Example: Arial font, bold style, size 14
+        domainAxis.setLabelFont(new Font("Trebuchet MS", Font.PLAIN, 14));
 
         // Set font for chart title
-        chart.getTitle().setFont(new Font("Georgia", Font.BOLD, 16)); // Example: Arial font, bold style, size 16
+        chart.getTitle().setFont(new Font("Trebuchet MS", Font.PLAIN, 20)); // Example: Arial font, bold style, size 16
 
       
         XYAreaRenderer renderer = new XYAreaRenderer();
         plot.setRenderer(renderer);
 
         // Set solid line color
-        renderer.setSeriesPaint(0, new Color(lineColor.getRed(), lineColor.getGreen(), lineColor.getBlue(), 120)); 
+        renderer.setSeriesPaint(0, new Color(lineColor.getRed(), lineColor.getGreen(), lineColor.getBlue(), 200)); 
 
         // Set translucent fill color (adjusted alpha value for transparency)
         renderer.setSeriesFillPaint(0, new Color(lineColor.getRed(), lineColor.getGreen(), lineColor.getBlue(), 200)); 
