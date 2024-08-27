@@ -2,6 +2,8 @@
 
 System Monitor is a Java application for monitoring various system metrics such as CPU utilization, memory usage, disk read/write speeds, and network throughput. It provides real-time charts to visualize the data and allows users to track system performance over time.
 
+For GSU CSC 4320
+
 ## Features
 
 - Real-time monitoring of CPU utilization, memory usage, disk read/write speeds, and network throughput.
